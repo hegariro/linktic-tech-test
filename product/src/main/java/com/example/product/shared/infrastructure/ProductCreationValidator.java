@@ -1,10 +1,11 @@
 package com.example.product.shared.infrastructure;
 
-import com.example.product.api.v1.dto.CreateProductRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
-import java.math.BigDecimal;
+
+import com.example.product.api.v1.dto.jsonapi.CreateProductAttributes;
+import com.example.product.api.v1.dto.jsonapi.CreateProductJsonApiRequest;
 
 @Component
 public class ProductCreationValidator implements Validator {
@@ -17,28 +18,27 @@ public class ProductCreationValidator implements Validator {
 
     @Override
     public boolean supports(Class<?> clazz) {
-        return CreateProductRequest.class.isAssignableFrom(clazz);
+        return CreateProductJsonApiRequest.class.isAssignableFrom(clazz);
     }
 
     @Override
     public void validate(Object target, Errors errors) {
-        CreateProductRequest request = (CreateProductRequest) target;
+        CreateProductJsonApiRequest request = (CreateProductJsonApiRequest) target;
+        CreateProductAttributes attr = request.data().attributes();
 
-        if (request.name().length() > validationsConfig.getNameMaxLength()) {
-            errors.rejectValue("name", "name.length", "Product name cannot exceed " + validationsConfig.getNameMaxLength() + " characters.");
+        if (attr.name().length() > validationsConfig.getNameMaxLength()) {
+            errors.rejectValue("data.attributes.name", "name.length", "Product name cannot exceed " + validationsConfig.getNameMaxLength() + " characters.");
         }
 
-        if (request.description() != null && request.description().length() > validationsConfig.getDescriptionMaxLength()) {
-            errors.rejectValue("description", "description.length", "Description cannot exceed " + validationsConfig.getDescriptionMaxLength() + " characters.");
+        if (attr.description() != null && attr.description().length() > validationsConfig.getDescriptionMaxLength()) {
+            errors.rejectValue("data.attributes.description", "description.length", "Description cannot exceed " + validationsConfig.getDescriptionMaxLength() + " characters.");
         }
 
-        if (request.price() != null) {
-            if (request.price().compareTo(validationsConfig.getPriceMinValue()) < 0) {
-                errors.rejectValue("price", "price.min", "Price must be at least " + validationsConfig.getPriceMinValue());
-            }
-            if (request.price().compareTo(validationsConfig.getPriceMaxValue()) > 0) {
-                errors.rejectValue("price", "price.max", "Price value is too high, max is " + validationsConfig.getPriceMaxValue());
-            }
+        if (attr.price().compareTo(validationsConfig.getPriceMinValue()) < 0) {
+            errors.rejectValue("data.attributes.price", "price.min", "Price must be at least " + validationsConfig.getPriceMinValue());
+        }
+        if (attr.price().compareTo(validationsConfig.getPriceMaxValue()) > 0) {
+            errors.rejectValue("data.attributes.price", "price.max", "Price value is too high, max is " + validationsConfig.getPriceMaxValue());
         }
     }
 }
