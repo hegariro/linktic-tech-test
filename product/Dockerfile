@@ -36,22 +36,14 @@ RUN apk add --no-cache \
 # Configurar zona horaria
 ENV TZ=America/Bogota
 
-# Crear usuario no-root para seguridad
-RUN addgroup -g 1000 appgroup && \
-    adduser -u 1000 -G appgroup -s /bin/sh -D appuser
-
 # Crear directorios de trabajo
-RUN mkdir -p /app/logs /app/tmp && \
-    chown -R appuser:appgroup /app
-
-# Cambiar al usuario no-root
-USER appuser
+RUN mkdir -p /app/logs /app/tmp
 
 # Establecer directorio de trabajo
 WORKDIR /app
 
 # Copiar el JAR desde la etapa de build
-COPY --from=builder --chown=appuser:appgroup /app/target/*.jar app.jar
+COPY --from=builder /app/target/*.jar app.jar
 
 # Variables de entorno por defecto
 ENV JAVA_OPTS="-Xmx512m -Xms256m" \

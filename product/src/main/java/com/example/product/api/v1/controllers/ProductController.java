@@ -1,8 +1,10 @@
 package com.example.product.api.v1.controllers;
 
+import com.example.product.management_product.domain.models.Product;
 import com.example.product.api.v1.dto.CreateProductRequest;
 import com.example.product.management_product.application.ports.CreateProductCommand;
 import com.example.product.shared.infrastructure.ProductCreationValidator;
+import com.example.product.api.v1.dto.jsonapi.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,7 +17,7 @@ import org.springframework.web.bind.annotation.InitBinder;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/api/v1/products")
+@RequestMapping("/v1/products")
 public class ProductController {
 
     private final CreateProductCommand createProductCommand;
@@ -35,8 +37,14 @@ public class ProductController {
     }
 
     @PostMapping
-    public ResponseEntity<Void> createProduct(@Valid @RequestBody CreateProductRequest request) {
-        createProductCommand.createProduct(request.name(), request.description(), request.price());
-        return new ResponseEntity<>(HttpStatus.CREATED);
+    public ResponseEntity<ProductJsonApiResponse> createProduct(
+            @Valid @RequestBody CreateProductJsonApiRequest request
+    ) {
+        CreateProductAttributes attributes = request.data().attributes();
+        Product product = createProductCommand.createProduct(
+                attributes.name(), attributes.description(), attributes.price());
+
+        ProductJsonApiResponse response = new ProductJsonApiResponse(ProductResponse.fromDomain(product));
+        return new ResponseEntity(response, HttpStatus.CREATED);
     }
 }

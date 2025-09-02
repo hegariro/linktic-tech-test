@@ -16,9 +16,10 @@ public class CreateProductUseCase implements CreateProductCommand {
     }
 
     @Override
-    public void createProduct(String name, String description, BigDecimal price) {
+    public Product createProduct(String name, String description, BigDecimal price) {
         // Aquí se crea la entidad de dominio y se utiliza el repositorio.
         Product product = Product.create(name, description, price);
         productRepository.save(product);
+        return product;
     }
 }
