@@ -1,12 +1,13 @@
 package com.example.product.management_product.infrastructure.adapters.repositories;
 
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.stereotype.Component;
+
 import com.example.product.management_product.domain.models.Product;
 import com.example.product.management_product.domain.repositories.ProductRepository;
 import com.example.product.management_product.infrastructure.persistence.ProductEntity;
-import org.springframework.stereotype.Component;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Component
 public class JpaProductRepositoryAdapter implements ProductRepository {
@@ -36,8 +37,21 @@ public class JpaProductRepositoryAdapter implements ProductRepository {
     }
 
     @Override
-    public Optional<Product> findById(UUID id) {
+    public Optional<Product> findById(String id) {
         Optional<ProductEntity> entity = jpaRepository.findById(id);
         return entity.map(e -> new Product(e.getId(), e.getName(), e.getDescription(), e.getPrice()));
+    }
+
+    @Override
+    public Optional<List<Product>> findAll() {
+        List<ProductEntity> entities = jpaRepository.findAll();
+        if (entities.isEmpty()) {
+            return Optional.empty(); 
+        }
+
+        List<Product> products = entities.stream()
+            .map(e -> new Product(e.getId(), e.getName(), e.getDescription(), e.getPrice()))
+            .toList();
+        return Optional.of(products);
     }
 }
