@@ -20,3 +20,6 @@
 # Envs
 .env
 !.env.example
+
+# Storage
+storage/mysql/data
