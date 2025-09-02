@@ -1,0 +1,66 @@
+# =========================================
+# .dockerignore para microservicio Inventory
+# =========================================
+
+# Directorios de build
+target/
+build/
+out/
+bin/
+
+# IDEs
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+.project
+.classpath
+.settings/
+nbproject/
+
+# Logs
+*.log
+logs/
+
+# Archivos temporales
+*.tmp
+*.temp
+*.swp
+*~
+.DS_Store
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+
+# Docker
+Dockerfile*
+docker-compose*.yml
+.dockerignore
+
+# Documentation
+README.md
+docs/
+*.md
+
+# Configuration files (sensibles)
+*.env
+.env.*
+application-local.yml
+application-local.properties
+
+# Test files
+src/test/
+**/test/
+
+# Maven wrapper (opcional, se puede incluir si se quiere usar en el container)
+# .mvn/
+# mvnw
+# mvnw.cmd
+
+# Archivos de sistema
+.cache/
+.npm/
+node_modules/
