@@ -11,6 +11,7 @@
 *.ear
 *.zip
 *.tar.gz
+*.gz
 *.rar
 *.pdf
 
@@ -23,3 +24,4 @@
 
 # Storage
 storage/mysql/data
+
