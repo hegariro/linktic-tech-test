@@ -10,11 +10,11 @@ import com.example.product.management_product.domain.models.Product;
 import com.example.product.management_product.domain.repositories.ProductRepository;
 
 @Component
-public class CreateProductUseCase implements ProductCommand {
+public class ProductUseCase implements ProductCommand {
 
     private final ProductRepository productRepository;
 
-    public CreateProductUseCase(ProductRepository productRepository) {
+    public ProductUseCase(ProductRepository productRepository) {
         this.productRepository = productRepository;
     }
 

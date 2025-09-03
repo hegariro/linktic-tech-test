@@ -4,7 +4,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
-import com.example.product.api.v1.dto.jsonapi.CreateProductJsonApiRequest;
 import com.example.product.api.v1.dto.jsonapi.UpdateProductRequest;
 
 @Component
