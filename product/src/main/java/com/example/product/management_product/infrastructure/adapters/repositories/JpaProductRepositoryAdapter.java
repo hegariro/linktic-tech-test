@@ -54,4 +54,12 @@ public class JpaProductRepositoryAdapter implements ProductRepository {
             .toList();
         return Optional.of(products);
     }
+
+    @Override
+    public void remove(String id) {
+        Optional<ProductEntity> entity = jpaRepository.findById(id);
+        if (entity.isPresent()) {
+            jpaRepository.delete(entity.get());
+        }
+    }
 }
