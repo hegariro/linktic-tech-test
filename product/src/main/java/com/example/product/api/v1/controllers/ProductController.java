@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -95,4 +96,19 @@ public class ProductController {
         }
     }
     
+    @DeleteMapping("{idProduct}")
+    public ResponseEntity<?> deleteProduct(@PathVariable String idProduct) {
+        try {
+            productCommand.deleteProduct(idProduct);
+            return new ResponseEntity<>(null, HttpStatusCode.valueOf(204));
+        } catch (Exception e) {
+                ErrorResponse response = new ErrorResponse(List.of(new ErrorResponse.ErrorResponseAttributes(
+                    HttpStatusCode.valueOf(404).toString(),
+                    "Product not found",
+                    e.getMessage()
+                )
+            ));
+            return new ResponseEntity<>(response, HttpStatusCode.valueOf(404));
+        }
+    }
 }

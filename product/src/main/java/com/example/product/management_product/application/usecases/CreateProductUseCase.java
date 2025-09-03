@@ -36,4 +36,9 @@ public class CreateProductUseCase implements ProductCommand {
         return productRepository.findAll()
             .orElseThrow(() -> new RuntimeException("Empty database"));
     }
+
+    @Override
+    public void deleteProduct(String id) {
+        productRepository.remove(id);
+    }
 }

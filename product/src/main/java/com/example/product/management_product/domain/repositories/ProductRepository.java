@@ -9,4 +9,5 @@ public interface ProductRepository {
     Product save(Product product);
     Optional<Product> findById(String id);
     Optional<List<Product>> findAll();
+    void remove(String id);
 }

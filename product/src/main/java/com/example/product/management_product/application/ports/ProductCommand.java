@@ -9,4 +9,5 @@ public interface ProductCommand {
     Product createProduct(String name, String description, BigDecimal price);
     Product getProductByID(String id);
     List<Product> getProducts();
+    void deleteProduct(String id);
 }
