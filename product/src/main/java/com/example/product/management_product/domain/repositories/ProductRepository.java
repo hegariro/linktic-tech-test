@@ -10,4 +10,5 @@ public interface ProductRepository {
     Optional<Product> findById(String id);
     Optional<List<Product>> findAll();
     void remove(String id);
+    Optional<Product> update(Product product);
 }

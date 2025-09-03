@@ -38,6 +38,13 @@ public class CreateProductUseCase implements ProductCommand {
     }
 
     @Override
+    public Product updateProduct(String id, String name, String description, BigDecimal price) {
+        return productRepository
+            .update(new Product(id, name, description, price))
+            .orElseThrow(() -> new RuntimeException("Product "+id+" not fond"));
+    }
+
+    @Override
     public void deleteProduct(String id) {
         productRepository.remove(id);
     }
