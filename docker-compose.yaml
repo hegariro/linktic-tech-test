@@ -1,0 +1,101 @@
+version: '3.8'
+
+services:
+  # Base de datos MySQL compartida
+  mysql-db:
+    image: mysql:8.0
+    container_name: mysql-microservices
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./storage/mysql/data:/var/lib/mysql
+      - ./storage/mysql/init:/docker-entrypoint-initdb.d
+    networks:
+      - microservices-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p$$MYSQL_ROOT_PASSWORD"]
+      timeout: 20s
+      retries: 10
+      interval: 10s
+
+  # Microservicio Products
+  products-service:
+    build:
+      context: ./product
+      dockerfile: Dockerfile
+    container_name: products-service
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      # Variables de entorno para Spring Boot
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE_PDS}
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL_PDS}
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME_PDS}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD_PDS}
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: ${SPRING_DATASOURCE_DRIVER_CLASS_NAME_PDS}
+      SPRING_JPA_HIBERNATE_DDL_AUTO: ${SPRING_JPA_HIBERNATE_DDL_AUTO_PDS}
+      SPRING_JPA_DATABASE_PLATFORM: ${SPRING_JPA_DATABASE_PLATFORM_PDS}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY_PDS}
+      # Configuración adicional
+      SERVER_PORT: ${SERVER_PORT_PDS}
+      LOGGING_LEVEL: ${LOGGING_LEVEL_PDS}
+    volumes:
+      - ./storage/products/logs:/app/logs
+    networks:
+      - microservices-network
+    depends_on:
+      - mysql-db
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      timeout: 10s
+      retries: 5
+      interval: 30s
+
+  # Microservicio Inventory
+  inventory-service:
+    build:
+      context: ./inventory
+      dockerfile: Dockerfile
+    container_name: inventory-service
+    restart: unless-stopped
+    ports:
+      - "8081:8081"
+    environment:
+      # Variables de entorno para Spring Boot
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE_IVS}
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL_IVS}
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME_IVS}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD_IVS}
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: ${SPRING_DATASOURCE_DRIVER_CLASS_NAME_IVS}
+      SPRING_JPA_HIBERNATE_DDL_AUTO: ${SPRING_JPA_HIBERNATE_DDL_AUTO_IVS}
+      SPRING_JPA_DATABASE_PLATFORM: ${SPRING_JPA_DATABASE_PLATFORM_IVS}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY_IVS}
+      # Configuración adicional
+      SERVER_PORT: ${SERVER_PORT_IVS}
+      LOGGING_LEVEL: ${LOGGING_LEVEL_IVS}
+      # URL del microservicio products para comunicación inter-servicio
+      PRODUCTS_SERVICE_URL: ${PRODUCTS_SERVICE_URL}
+    volumes:
+      - ./storage/inventory/logs:/app/logs
+    networks:
+      - microservices-network
+    depends_on:
+      - mysql-db
+      - products-service
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8081/actuator/health"]
+      timeout: 10s
+      retries: 5
+      interval: 30s
+
+# Definición de la red compartida
+networks:
+  microservices-network:
+    driver: bridge
