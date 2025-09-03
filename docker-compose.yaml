@@ -82,6 +82,8 @@ services:
       LOGGING_LEVEL: ${LOGGING_LEVEL_IVS}
       # URL del microservicio products para comunicación inter-servicio
       PRODUCTS_SERVICE_URL: ${PRODUCTS_SERVICE_URL}
+      PRODUCTS_SERVICE_USER: ${PRODUCTS_SERVICE_USER}
+      PRODUCTS_SERVICE_PASSWORD: ${PRODUCTS_SERVICE_PASSWORD}
     volumes:
       - ./storage/inventory/logs:/app/logs
     networks:
