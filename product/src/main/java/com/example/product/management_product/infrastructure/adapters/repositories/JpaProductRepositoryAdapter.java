@@ -56,6 +56,30 @@ public class JpaProductRepositoryAdapter implements ProductRepository {
     }
 
     @Override
+    public Optional<Product> update(Product product) {
+        ProductEntity entity = jpaRepository.findById(product.id()).get();
+        if (product.name() != null) {
+            entity.setName(product.name());
+        }
+        if (product.description() != null) {
+            entity.setDescription(product.description());
+        }
+        if (product.price() != null) {
+            entity.setPrice(product.price());
+        }
+
+        // Llama al metodo save() de Spring Data JPA
+        ProductEntity saved = jpaRepository.save(entity);
+        Product response = new Product(
+                saved.getId(),
+                saved.getName(),
+                saved.getDescription(),
+                saved.getPrice()
+        );
+        return Optional.of(response);
+    }
+
+    @Override
     public void remove(String id) {
         Optional<ProductEntity> entity = jpaRepository.findById(id);
         if (entity.isPresent()) {

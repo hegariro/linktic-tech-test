@@ -9,5 +9,6 @@ public interface ProductCommand {
     Product createProduct(String name, String description, BigDecimal price);
     Product getProductByID(String id);
     List<Product> getProducts();
+    Product updateProduct(String id, String name, String description, BigDecimal price);
     void deleteProduct(String id);
 }
