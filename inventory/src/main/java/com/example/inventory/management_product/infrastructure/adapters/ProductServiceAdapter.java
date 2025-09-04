@@ -1,5 +1,15 @@
 package com.example.inventory.management_product.infrastructure.adapters;
 
+import java.util.Optional;
+
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
+
 import com.example.inventory.management_product.application.ports.out.ProductRepository;
 import com.example.inventory.management_product.domain.models.Product;
 import com.example.inventory.management_product.infrastructure.config.ProductServiceProperties;
@@ -9,11 +19,7 @@ import com.example.inventory.management_product.infrastructure.mapper.LoginMappe
 import com.example.inventory.management_product.infrastructure.mapper.ProductServiceMapper;
 
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
-import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.http.*;
-
-import java.util.Optional;
+import jakarta.annotation.PostConstruct;
 
 @Component
 public class ProductServiceAdapter implements ProductRepository {
@@ -25,9 +31,17 @@ public class ProductServiceAdapter implements ProductRepository {
     public ProductServiceAdapter(ProductServiceProperties properties) {
         this.properties = properties;
         this.restTemplate = new RestTemplate();
-        login();
     }
-
+    
+    @PostConstruct
+    public void init() {
+        try {
+            login();
+        } catch (Exception e) {
+            System.err.println("***************************************************************");
+            System.err.println("Error durante la inicialización del token: " + e.getMessage());
+        }
+    }
 
     @Override
     @CircuitBreaker(name = "product-service", fallbackMethod = "fallbackFindById")
@@ -56,7 +70,7 @@ public class ProductServiceAdapter implements ProductRepository {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
-        String body = String.format("{\"username\":\"%s\",\"password\":\"%s\"}",
+        String body = String.format("{\"nickname\":\"%s\",\"passwd\":\"%s\"}",
                 properties.getProductUser(), properties.getProductPassword());
 
         HttpEntity<String> entity = new HttpEntity<>(body, headers);
@@ -74,8 +88,8 @@ public class ProductServiceAdapter implements ProductRepository {
         return Optional.empty();
     }
 
-    public String fallbackLogin(Throwable ex) {
+    public void fallbackLogin(Throwable ex) {
         System.err.println("Fallback login: " + ex.getMessage());
-        return "dummy-token";
+        this.token = null;
     }
 }

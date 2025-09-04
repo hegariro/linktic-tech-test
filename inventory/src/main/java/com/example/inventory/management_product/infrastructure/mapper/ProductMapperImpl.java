@@ -17,4 +17,3 @@ public class ProductMapperImpl implements ProductMapper {
         );
     }
 }
-
