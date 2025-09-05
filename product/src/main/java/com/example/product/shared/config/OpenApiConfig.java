@@ -1,4 +1,4 @@
-package com.example.inventory.shared.config;
+package com.example.product.shared.config;
 
 import org.springframework.context.annotation.Configuration;
 
@@ -26,4 +26,3 @@ import io.swagger.v3.oas.annotations.security.SecurityScheme;
 public class OpenApiConfig {
     // Esta clase no necesita más código. Las anotaciones hacen todo el trabajo.
 }
-

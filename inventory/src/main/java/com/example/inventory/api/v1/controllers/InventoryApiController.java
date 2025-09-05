@@ -32,13 +32,21 @@ import com.example.inventory.management_product.infrastructure.ProductController
 import com.example.inventory.shared.validators.BuyProductsValidator;
 import com.example.inventory.shared.validators.SellProductsValidator;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
 
 @RestController
 @RequestMapping("/v1/inventory")
+@Tag(name = "Inventario", description = "Operaciones de gestión de inventario, como consultar, comprar y vender productos")
+@SecurityRequirement(name = "BearerAuth") 
 public class InventoryApiController {
-    
+
     private final ProductController productController;
     private final InventoryController inventoryController;
     private final BuyProductsValidator buyProductsValidator;
@@ -66,6 +74,27 @@ public class InventoryApiController {
         binder.addValidators(sellProductsValidator);
     }
 
+
+    @Operation(
+        summary = "Obtiene el inventario de un producto por ID",
+        description = "Busca el inventario disponible de un producto específico usando su ID único."
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "Inventario del producto encontrado",
+        content = @Content(
+            mediaType = "application/json",
+            schema = @Schema(implementation = InventoryJsonApiResponse.class)
+        )
+    )
+    @ApiResponse(
+        responseCode = "400",
+        description = "Error de validación o inventario no encontrado",
+        content = @Content(
+            mediaType = "application/json",
+            schema = @Schema(implementation = ErrorResponse.class)
+        )
+    )
     @GetMapping("/product/{idProduct}")
     public ResponseEntity<?> getProductByID(@PathVariable String idProduct) {
         try {
@@ -97,6 +126,34 @@ public class InventoryApiController {
         }
     }
 
+    @Operation(
+        summary = "Añade productos al inventario (compra)",
+        description = "Permite registrar la compra de uno o varios productos, incrementando la cantidad en el inventario."
+    )
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+        description = "Lista de productos a comprar, siguiendo el estándar JSON:API.",
+        required = true,
+        content = @Content(
+            mediaType = "application/json",
+            schema = @Schema(implementation = BuyProductsJsonApiRequest.class)
+        )
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "Compra procesada exitosamente",
+        content = @Content(
+            mediaType = "application/json",
+            schema = @Schema(implementation = BuyProductsJsonApiResponse.class)
+        )
+    )
+    @ApiResponse(
+        responseCode = "400",
+        description = "Error de validación o del proceso de compra",
+        content = @Content(
+            mediaType = "application/json",
+            schema = @Schema(implementation = ErrorResponse.class)
+        )
+    )
     @PostMapping("/products/buy")
     public ResponseEntity<?> buyProducts(@Valid @RequestBody BuyProductsJsonApiRequest request) {
         try {
@@ -121,6 +178,34 @@ public class InventoryApiController {
         }
     }
 
+    @Operation(
+        summary = "Vende productos del inventario",
+        description = "Permite registrar la venta de uno o varios productos, reduciendo la cantidad en el inventario."
+    )
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+        description = "Lista de productos a vender, siguiendo el estándar JSON:API.",
+        required = true,
+        content = @Content(
+            mediaType = "application/json",
+            schema = @Schema(implementation = SellProductsJsonApiRequest.class)
+        )
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "Venta procesada exitosamente",
+        content = @Content(
+            mediaType = "application/json",
+            schema = @Schema(implementation = SellProductsJsonApiResponse.class)
+        )
+    )
+    @ApiResponse(
+        responseCode = "400",
+        description = "Error de validación, stock insuficiente o del proceso de venta",
+        content = @Content(
+            mediaType = "application/json",
+            schema = @Schema(implementation = ErrorResponse.class)
+        )
+    )
     @PostMapping("/products/sell")
     public ResponseEntity<?> sellProducts(@Valid @RequestBody SellProductsJsonApiRequest request) {
         try {
