@@ -81,7 +81,7 @@ public class JpaInventoryRepositoryAdapter implements InventoryRepository {
             ));
         } catch (Exception e) {
             System.err.println(e.getMessage());
-            System.out.println("----------------------------------------  inbounUpdateInventory");
+            System.err.println("----------------------------------------  inbounUpdateInventory");
         }
         return Optional.empty();
     }

@@ -9,6 +9,8 @@ import com.example.inventory.api.v1.dto.BuyProductsJsonApiAttribs;
 import com.example.inventory.api.v1.dto.BuyProductsResponse;
 import com.example.inventory.api.v1.dto.InventoryDomainResponse;
 import com.example.inventory.api.v1.dto.ProductResponse;
+import com.example.inventory.api.v1.dto.SellProductsJsonApiAttribs;
+import com.example.inventory.api.v1.dto.SellProductsResponse;
 import com.example.inventory.management_inventory.domain.models.Inventory;
 import com.example.inventory.management_inventory.domain.models.Product;
 import com.example.inventory.management_inventory.domain.models.TransactionData;
@@ -50,5 +52,18 @@ public class InventoryMapperImpl implements InventoryMapper {
         } catch (Exception e) {
             return Optional.empty();
         }
+    }
+
+    @Override
+    public Optional<SellProductsResponse> toApiSell(TransactionData data) {
+        return Optional.of(new SellProductsResponse(data.id(), data.totalItemsOk(), data.total(), data.idItemsList()));
+    }
+
+    @Override
+    public List<Inventory> toDomain(SellProductsJsonApiAttribs inboudProducts) {
+        var products = inboudProducts.items();
+        return products.stream().map(p -> new Inventory(
+            p.productId(), p.quantity()
+        )).toList();
     }
 }
