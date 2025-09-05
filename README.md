@@ -122,7 +122,7 @@ La documentación interactiva de la API para cada microservicio está disponible
 También puedes consultar los OpenAPI Specs correspondientes:
 
 - **Inventory OpenAPI Spec:** [http://localhost:8081/v3/api-docs](http://localhost:8081/v3/api-docs)
-- **Product OpenAPI Spec:** [http://localhost:8082/v3/api-docs](http://localhost:8082/v3/api-docs)
+- **Product OpenAPI Spec:** [http://localhost:8080/v3/api-docs](http://localhost:8080/v3/api-docs)
 
 ---
 
@@ -135,3 +135,4 @@ También puedes consultar los OpenAPI Specs correspondientes:
 ---
 
 ¡Siéntete libre de contribuir o abrir issues para sugerir mejoras!
+
