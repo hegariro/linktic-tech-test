@@ -65,7 +65,7 @@ public class ProductController {
     ) {
         CreateProductAttributes attributes = request.data().attributes();
         Product product = productCommand.createProduct(
-                attributes.name(), attributes.description(), attributes.price());
+            attributes.name(), attributes.description(), attributes.price());
 
         ProductJsonApiResponse response = new ProductJsonApiResponse(ProductResponse.fromDomain(product));
         return new ResponseEntity<>(response, HttpStatus.CREATED);

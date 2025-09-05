@@ -2,10 +2,13 @@ package com.example.inventory.management_product.application.usecases;
 
 import java.util.Optional;
 
-import com.example.inventory.management_product.application.ports.in.ProductUseCase;
-import com.example.inventory.management_product.domain.models.Product;
-import com.example.inventory.management_product.application.ports.out.ProductRepository;
+import org.springframework.stereotype.Service;
 
+import com.example.inventory.management_product.application.ports.in.ProductUseCase;
+import com.example.inventory.management_product.application.ports.out.ProductRepository;
+import com.example.inventory.management_product.domain.models.Product;
+
+@Service
 public class ProductUseCaseImpl implements ProductUseCase {
 
     private final ProductRepository productRepository;
