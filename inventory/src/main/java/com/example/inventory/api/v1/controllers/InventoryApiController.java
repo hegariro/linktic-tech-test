@@ -5,11 +5,30 @@ import java.util.Optional;
 
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.InitBinder;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import com.example.inventory.api.v1.dto.*;
-import com.example.inventory.management_product.infrastructure.ProductController;
+import com.example.inventory.api.v1.dto.BuyProductsJsonApiAttribs;
+import com.example.inventory.api.v1.dto.BuyProductsJsonApiRequest;
+import com.example.inventory.api.v1.dto.BuyProductsJsonApiResponse;
+import com.example.inventory.api.v1.dto.BuyProductsResponse;
+import com.example.inventory.api.v1.dto.ErrorResponse;
+import com.example.inventory.api.v1.dto.InventoryDomainResponse;
+import com.example.inventory.api.v1.dto.InventoryJsonApiResponse;
+import com.example.inventory.api.v1.dto.InventoryResponse;
+import com.example.inventory.api.v1.dto.ProductResponse;
 import com.example.inventory.management_inventory.infrastructure.InventoryController;
+import com.example.inventory.management_product.infrastructure.ProductController;
+import com.example.inventory.shared.validators.BuyProductsValidator;
+
+import jakarta.validation.Valid;
+
 
 @RestController
 @RequestMapping("/v1/inventory")
@@ -17,13 +36,21 @@ public class InventoryApiController {
     
     private final ProductController productController;
     private final InventoryController inventoryController;
+    private final BuyProductsValidator buyProductsValidator;
 
     public InventoryApiController(
         ProductController productController,
-        InventoryController inventoryController
+        InventoryController inventoryController,
+        BuyProductsValidator buyProductsValidator
     ) {
         this.productController = productController;
         this.inventoryController = inventoryController;
+        this.buyProductsValidator = buyProductsValidator;
+    }
+
+    @InitBinder("BuyProductsJsonApiRequest")
+    protected void initCreateBinder(WebDataBinder binder) {
+        binder.addValidators(buyProductsValidator);
     }
 
     @GetMapping("/product/{idProduct}")
@@ -44,6 +71,30 @@ public class InventoryApiController {
             InventoryDomainResponse domain = domainResponse.get();
             InventoryJsonApiResponse response = InventoryResponse.fromDomain(product, domain);
 
+            return ResponseEntity.ok().body(response);
+        } catch(Exception e) {
+            ErrorResponse response = new ErrorResponse(List.of(
+                new ErrorResponse.ErrorResponseAttributes(
+                    HttpStatusCode.valueOf(400).toString(),
+                    "Error inesperado",
+                    e.getMessage()
+                )
+            ));
+            return ResponseEntity.status(400).body(response);
+        }
+    }
+
+    @PostMapping("/products/buy")
+    public ResponseEntity<?> buyProducts(@Valid @RequestBody BuyProductsJsonApiRequest request) {
+        try {
+            BuyProductsJsonApiAttribs attribs = request.data().attributes();
+            Optional<BuyProductsResponse> buyResponse = inventoryController.buyProducts(attribs);
+
+            if (!buyResponse.isPresent()) {
+                throw new Exception("Unknown error");
+            }
+
+            BuyProductsJsonApiResponse response = BuyProductsResponse.fromDomain(buyResponse.get());
             return ResponseEntity.ok().body(response);
         } catch(Exception e) {
             ErrorResponse response = new ErrorResponse(List.of(

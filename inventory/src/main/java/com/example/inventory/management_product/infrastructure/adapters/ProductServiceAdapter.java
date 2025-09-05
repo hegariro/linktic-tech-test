@@ -7,7 +7,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import com.example.inventory.management_product.application.ports.out.ProductRepository;
@@ -21,7 +22,7 @@ import com.example.inventory.management_product.infrastructure.mapper.ProductSer
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import jakarta.annotation.PostConstruct;
 
-@Component
+@Service("productServiceManagementProductAdapter")
 public class ProductServiceAdapter implements ProductRepository {
 
     private final ProductServiceProperties properties;
@@ -48,18 +49,29 @@ public class ProductServiceAdapter implements ProductRepository {
     public Optional<Product> findById(String id) {
         String url = properties.getProductUrl() + "/products/" + id;
 
+        System.err.println("****************************************************************************");
+        System.err.println(url);
+        
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.setBearerAuth(token);
-
-        HttpEntity<String> entity = new HttpEntity<>(headers);
         
-        ResponseEntity<ProductResponse> response =
-            restTemplate.exchange(url, HttpMethod.GET, entity, ProductResponse.class);
+        System.err.println(token);
+        
+        HttpEntity<String> entity = new HttpEntity<>(headers);
 
-        Product product = ProductServiceMapper.toDomain(response.getBody());
+        try {
+            ResponseEntity<ProductResponse> response =
+                restTemplate.exchange(url, HttpMethod.GET, entity, ProductResponse.class);
+            Product product = ProductServiceMapper.toDomain(response.getBody());
+    
+            return Optional.ofNullable(product);
+        } catch (RestClientException e) {
+            System.err.println(e.getMessage());
+            System.err.println("****************************************************************************");
+            return Optional.empty();
+        }
 
-        return Optional.ofNullable(product);
     }
 
 
