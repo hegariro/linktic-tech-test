@@ -23,9 +23,14 @@ import com.example.inventory.api.v1.dto.InventoryDomainResponse;
 import com.example.inventory.api.v1.dto.InventoryJsonApiResponse;
 import com.example.inventory.api.v1.dto.InventoryResponse;
 import com.example.inventory.api.v1.dto.ProductResponse;
+import com.example.inventory.api.v1.dto.SellProductsJsonApiAttribs;
+import com.example.inventory.api.v1.dto.SellProductsJsonApiRequest;
+import com.example.inventory.api.v1.dto.SellProductsJsonApiResponse;
+import com.example.inventory.api.v1.dto.SellProductsResponse;
 import com.example.inventory.management_inventory.infrastructure.InventoryController;
 import com.example.inventory.management_product.infrastructure.ProductController;
 import com.example.inventory.shared.validators.BuyProductsValidator;
+import com.example.inventory.shared.validators.SellProductsValidator;
 
 import jakarta.validation.Valid;
 
@@ -37,20 +42,28 @@ public class InventoryApiController {
     private final ProductController productController;
     private final InventoryController inventoryController;
     private final BuyProductsValidator buyProductsValidator;
+    private final SellProductsValidator sellProductsValidator;
 
     public InventoryApiController(
         ProductController productController,
         InventoryController inventoryController,
-        BuyProductsValidator buyProductsValidator
+        BuyProductsValidator buyProductsValidator,
+        SellProductsValidator sellProductsValidator
     ) {
         this.productController = productController;
         this.inventoryController = inventoryController;
         this.buyProductsValidator = buyProductsValidator;
+        this.sellProductsValidator = sellProductsValidator;
     }
 
     @InitBinder("BuyProductsJsonApiRequest")
-    protected void initCreateBinder(WebDataBinder binder) {
+    protected void initBuyBinder(WebDataBinder binder) {
         binder.addValidators(buyProductsValidator);
+    }
+
+    @InitBinder("SellProductsJsonApiRequest")
+    protected void initSellBinder(WebDataBinder binder) {
+        binder.addValidators(sellProductsValidator);
     }
 
     @GetMapping("/product/{idProduct}")
@@ -95,6 +108,30 @@ public class InventoryApiController {
             }
 
             BuyProductsJsonApiResponse response = BuyProductsResponse.fromDomain(buyResponse.get());
+            return ResponseEntity.ok().body(response);
+        } catch(Exception e) {
+            ErrorResponse response = new ErrorResponse(List.of(
+                new ErrorResponse.ErrorResponseAttributes(
+                    HttpStatusCode.valueOf(400).toString(),
+                    "Error inesperado",
+                    e.getMessage()
+                )
+            ));
+            return ResponseEntity.status(400).body(response);
+        }
+    }
+
+    @PostMapping("/products/sell")
+    public ResponseEntity<?> sellProducts(@Valid @RequestBody SellProductsJsonApiRequest request) {
+        try {
+            SellProductsJsonApiAttribs attribs = request.data().attributes();
+            Optional<SellProductsResponse> sellResponse = inventoryController.sellProducts(attribs);
+
+            if (!sellResponse.isPresent()) {
+                throw new Exception("Unknown error");
+            }
+
+            SellProductsJsonApiResponse response = SellProductsResponse.fromDomain(sellResponse.get());
             return ResponseEntity.ok().body(response);
         } catch(Exception e) {
             ErrorResponse response = new ErrorResponse(List.of(
