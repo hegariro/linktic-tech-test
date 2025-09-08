@@ -1,5 +1,6 @@
 package com.example.inventory.api.v1.controllers;
 
+// imports
 import java.util.List;
 import java.util.Optional;
 
@@ -35,6 +36,8 @@ public class AuthController {
         this.authCommand = authCommand;
     }
 
+
+    // OpenAPI Docs
     @Operation(
         summary = "Autentica a un usuario y genera un token JWT",
         description = "Valida las credenciales del usuario y, si son válidas, devuelve un token JWT para acceder a los recursos protegidos."

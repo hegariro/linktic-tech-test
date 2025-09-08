@@ -13,6 +13,9 @@ COPY pom.xml ./
 COPY .mvn/ .mvn/
 COPY mvnw ./
 
+# Hacer ejecutable el wrapper de Maven
+RUN chmod +x mvnw
+
 # Descargar dependencias (se cachea si pom.xml no cambia)
 RUN mvn dependency:go-offline -B
 
@@ -23,9 +26,17 @@ COPY src ./src/
 RUN mvn clean package -DskipTests -B
 
 # =========================================
-# Etapa 2: Imagen runtime optimizada
+# Etapa 2: Solo para tests
+FROM builder AS test-stage
+
+# Esta etapa está disponible para ejecutar tests
+# Los tests se ejecutarán cuando se especifique al run del contenedor
+# Ejemplo: docker run --rm test-stage mvn test
+
 # =========================================
-FROM amazoncorretto:17-alpine-jdk
+# Etapa 3: Imagen runtime optimizada
+# =========================================
+FROM amazoncorretto:17-alpine-jdk AS runtime
 
 # Instalar herramientas necesarias
 RUN apk add --no-cache \
@@ -36,8 +47,16 @@ RUN apk add --no-cache \
 # Configurar zona horaria
 ENV TZ=America/Bogota
 
+# Crear usuario no-root para seguridad
+RUN addgroup -g 1000 appgroup && \
+    adduser -u 1000 -G appgroup -s /bin/sh -D appuser
+
 # Crear directorios de trabajo
-RUN mkdir -p /app/logs /app/tmp
+RUN mkdir -p /app/logs /app/tmp && \
+    chown -R appuser:appgroup /app
+
+# Cambiar al usuario no-root
+USER appuser
 
 # Establecer directorio de trabajo
 WORKDIR /app
@@ -78,3 +97,4 @@ LABEL org.opencontainers.image.title="Products Microservice"
 LABEL org.opencontainers.image.description="Microservicio de gestión de productos"
 LABEL org.opencontainers.image.vendor="LinkTic"
 LABEL org.opencontainers.image.version="1.0.0"
+
