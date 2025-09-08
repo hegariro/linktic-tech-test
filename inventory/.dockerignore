@@ -52,8 +52,8 @@ application-local.yml
 application-local.properties
 
 # Test files
-src/test/
-**/test/
+#src/test/
+#**/test/
 
 # Maven wrapper (opcional, se puede incluir si se quiere usar en el container)
 # .mvn/

@@ -1,5 +1,7 @@
 package com.example.product.api.v1.controllers;
 
+// imports 
+
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
@@ -67,6 +69,7 @@ public class ProductController {
         binder.addValidators(updateProductValidator);
     }
 
+    // OpenAPI Docs
     @Operation(
         summary = "Crea un nuevo producto",
         description = "Crea un nuevo registro de producto con un nombre, descripción y precio."
@@ -107,6 +110,7 @@ public class ProductController {
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
+    // OpenAPI Docs
     @Operation(
         summary = "Obtiene un producto por ID",
         description = "Busca y devuelve los detalles de un producto específico usando su ID único."
@@ -145,6 +149,7 @@ public class ProductController {
         }
     }
 
+    // OpenAPI Docs
     @Operation(
         summary = "Obtiene todos los productos",
         description = "Devuelve una lista de todos los productos disponibles en el sistema."
@@ -183,6 +188,7 @@ public class ProductController {
         }
     }
 
+    // OpenAPI Docs
     @Operation(
         summary = "Actualiza un producto existente",
         description = "Modifica los atributos de un producto específico, como el nombre, la descripción o el precio."
@@ -226,6 +232,7 @@ public class ProductController {
         }
     }
 
+    // OpenAPI Docs
     @Operation(
         summary = "Elimina un producto",
         description = "Elimina un producto del inventario usando su ID."
